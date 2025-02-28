@@ -13,7 +13,7 @@
         }
         .sidebar {
             width: 250px;
-            background: #2c3e50;
+            background: #17a354;
             color: white;
             padding: 20px;
             height: 100vh;
