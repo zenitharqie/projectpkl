@@ -3,6 +3,8 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InquiryController;
+use App\Http\Controllers\DashboardController;
+
 
 // Halaman Utama
 Route::get('/', function () {
@@ -13,11 +15,12 @@ Route::get('/', function () {
 Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/admin/login', [AuthController::class, 'login']);
 
+
+// Route untuk dashboard admin
+
 // Dashboard Admin (Hanya bisa diakses setelah login)
 Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('admin.dashboard');
+    Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
     Route::get('/admin/quotation', function () {
         return view('admin.quotation');

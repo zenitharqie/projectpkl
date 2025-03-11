@@ -22,7 +22,7 @@ class InquiryController extends Controller
             'description' => 'required',
             'quantity' => 'required|integer|min:1',
             'due_date' => 'required|date',
-            'document' => 'nullable|file|mimes:pdf,doc,docx|max:2048', // Validasi untuk file
+            'document' => 'nullable|file|mimes:pdf,doc,docx|max:5120', // Validasi untuk file
         ]);
 
         // Handle file upload
@@ -38,7 +38,7 @@ class InquiryController extends Controller
             'description' => $request->description,
             'quantity' => $request->quantity,
             'due_date' => $request->due_date,
-            'status' => false, // Default status: pending
+            'status' => 'pending', // Default status: pending (diubah dari false ke 'pending')
             'document' => $documentPath, // Simpan path dokumen
         ]);
 
@@ -47,14 +47,55 @@ class InquiryController extends Controller
     }
 
     // Method untuk menampilkan list inquiry di admin dashboard
-    public function listInquiries()
-    {
-        // Ambil semua data inquiry dari database
-        $inquiries = Inquiry::orderBy('id', 'desc')->get();
+    public function listInquiries(Request $request)
+{
+    // Ambil parameter dari request
+    $status = $request->query('status', 'all');
+    $year = $request->query('year');
+    $month = $request->query('month');
+    $day = $request->query('day');
+    $id = $request->query('id');
+    $customerName = $request->query('customer_name');
 
-        // Tampilkan view admin/listinquiry dengan data inquiries
-        return view('admin.listinquiry', compact('inquiries'));
+    // Query dasar
+    $query = Inquiry::orderBy('created_at', 'desc');
+
+    // Filter berdasarkan status
+    if ($status !== 'all') {
+        $query->where('status', $status);
     }
+
+    // Filter berdasarkan tahun
+    if ($year) {
+        $query->whereYear('created_at', $year);
+    }
+
+    // Filter berdasarkan bulan
+    if ($month) {
+        $query->whereMonth('created_at', $month);
+    }
+
+    // Filter berdasarkan hari
+    if ($day) {
+        $query->whereDay('created_at', $day);
+    }
+
+    // Filter berdasarkan ID
+    if ($id) {
+        $query->where('id', $id);
+    }
+
+    // Filter berdasarkan nama pelanggan
+    if ($customerName) {
+        $query->where('customer_name', 'like', '%' . $customerName . '%');
+    }
+
+    // Ambil data inquiries
+    $inquiries = $query->get();
+
+    // Tampilkan view admin/listinquiry dengan data inquiries dan filter
+    return view('admin.listinquiry', compact('inquiries', 'status', 'year', 'month', 'day', 'id', 'customerName'));
+}
 
     public function updateStatus(Request $request, $id)
     {
@@ -75,12 +116,12 @@ class InquiryController extends Controller
     }
 
     public function destroy($id)
-{
-    $inquiry = Inquiry::find($id); // Cari inquiry berdasarkan ID
-    if ($inquiry) {
-        $inquiry->delete(); // Hapus inquiry dari database
-        return redirect()->route('admin.inquirylist')->with('success', 'Inquiry deleted successfully.');
+    {
+        $inquiry = Inquiry::find($id); // Cari inquiry berdasarkan ID
+        if ($inquiry) {
+            $inquiry->delete(); // Hapus inquiry dari database
+            return redirect()->route('admin.inquirylist')->with('success', 'Inquiry deleted successfully.');
+        }
+        return redirect()->route('admin.inquirylist')->with('error', 'Inquiry not found.');
     }
-    return redirect()->route('admin.inquirylist')->with('error', 'Inquiry not found.');
-}
 }

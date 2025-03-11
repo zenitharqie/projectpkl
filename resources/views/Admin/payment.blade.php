@@ -9,7 +9,7 @@
 <body class="bg-gray-100">
     <div class="flex">
         <!-- Sidebar -->
-                <div class="w-64 bg-white shadow-md h-screen p-4">
+        <div class="w-64 bg-white shadow-md h-screen p-4">
             <h2 class="text-xl font-semibold text-gray-800 mb-6">Admin Panel</h2>
             <ul class="space-y-2">
                 <li>
@@ -18,8 +18,13 @@
                     </a>
                 </li>
                 <li>
-                    <a href="{{ url('/user/inquiry') }}" class="flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded">
+                    <a href="{{ url('/user/inquiryform') }}" class="flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded">
                         <span>Inquiries</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-2 text-gray-700 hover:bg-gray-100 rounded">
+                        <span>List Inquiry</span>
                     </a>
                 </li>
                 <li>
@@ -39,7 +44,6 @@
                 </li>
             </ul>
         </div>
-
         <!-- Konten Utama -->
         <div class="flex-1 p-6">
         <div class="flex justify-between items-center mb-6">
