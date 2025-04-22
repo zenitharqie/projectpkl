@@ -15,6 +15,8 @@
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h2>
         <ul class="space-y-3 flex-1">
             <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Dashboard</a></li>
+            {{-- Removed Add Inquiry from sidebar as per request --}}
+            {{-- <li><a href="{{ url('/user/inquiryform') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Inquiry</a></li> --}}
             <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
             <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li>
             <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Quotations</a></li>
@@ -100,6 +102,7 @@
                         <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
+
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -182,110 +185,75 @@
     </main>
 </div>
 
-<!-- Improved Customer Modal -->
-<div id="customerModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white w-full max-w-xl rounded-lg shadow-xl overflow-hidden">
-        <div class="p-4 border-b">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold text-gray-800">Search Customer</h3>
-                <button onclick="closeCustomerModal()" class="text-gray-500 hover:text-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                </button>
-            </div>
-            <div class="mt-2">
-                <input type="text" id="searchCustomerInput" placeholder="Type customer name or email..." 
-                       class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                       onkeyup="debounceSearch()">
-            </div>
-        </div>
-        <div class="max-h-96 overflow-y-auto">
-            <ul id="customerResults" class="divide-y divide-gray-200">
-                <li class="p-4 text-center text-gray-500">Type at least 2 characters to search</li>
-            </ul>
-        </div>
+<!-- Customer Modal -->
+<div id="customerModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center">
+    <div class="bg-white w-full max-w-xl p-6 rounded-lg shadow-lg relative">
+        <h2 class="text-lg font-semibold mb-2">Search Customer</h2>
+        <input type="text" id="searchCustomerInput" placeholder="Type name or email..."
+               class="w-full border px-4 py-2 rounded mb-4" onkeyup="searchCustomer()">
+        <ul id="customerResults" class="max-h-64 overflow-y-auto space-y-2"></ul>
+        <button onclick="closeCustomerModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✖</button>
     </div>
 </div>
 
 <script>
-    // Debounce search function to prevent too many requests
-    let searchDebounceTimer;
-    function debounceSearch() {
-        clearTimeout(searchDebounceTimer);
-        searchDebounceTimer = setTimeout(searchCustomer, 300);
-    }
-
     function openCustomerModal() {
-        const modal = document.getElementById("customerModal");
-        modal.classList.remove("hidden");
-        modal.classList.add("flex");
-        
+        document.getElementById("customerModal").classList.remove("hidden");
         const searchInput = document.getElementById("searchCustomerInput");
         searchInput.value = '';
         searchInput.focus();
-        
-        // Clear previous results
-        document.getElementById('customerResults').innerHTML = 
-            '<li class="p-4 text-center text-gray-500">Type at least 2 characters to search</li>';
+        searchCustomer();
     }
 
     function closeCustomerModal() {
-        const modal = document.getElementById("customerModal");
-        modal.classList.add("hidden");
-        modal.classList.remove("flex");
+        document.getElementById("customerModal").classList.add("hidden");
     }
 
     function searchCustomer() {
-        const term = document.getElementById('searchCustomerInput').value.trim();
-        const resultsContainer = document.getElementById('customerResults');
-        
+        const term = document.getElementById('searchCustomerInput').value;
         if (term.length < 2) {
-            resultsContainer.innerHTML = 
-                '<li class="p-4 text-center text-gray-500">Type at least 2 characters to search</li>';
+            document.getElementById('customerResults').innerHTML = '<li class="p-2 text-gray-500">Type at least 2 characters</li>';
             return;
         }
 
-        resultsContainer.innerHTML = 
-            '<li class="p-4 text-center text-gray-500">Searching customers...</li>';
+        document.getElementById('customerResults').innerHTML = '<li class="p-2 text-gray-500">Searching...</li>';
 
         fetch(`{{ route('inquiries.search-customers') }}?term=${encodeURIComponent(term)}`, {
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'Accept': 'application/json'
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
             }
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
+        .then(res => res.json())
         .then(data => {
             if (!data || data.length === 0) {
-                resultsContainer.innerHTML = 
-                    '<li class="p-4 text-center text-gray-500">No customers found</li>';
+                document.getElementById('customerResults').innerHTML = '<li class="p-2 text-gray-500">No customers found</li>';
                 return;
             }
 
-            const customersHtml = data.map(customer => `
-                <li class="p-4 hover:bg-gray-50 cursor-pointer transition-colors"
+            const list = data.map(customer => `
+                <li class="border p-3 rounded hover:bg-gray-100 cursor-pointer"
                     onclick="selectCustomer(${customer.id}, '${escapeHtml(customer.name)}', '${escapeHtml(customer.phone)}', '${escapeHtml(customer.email)}')">
-                    <div class="font-medium text-gray-900">${escapeHtml(customer.name)}</div>
-                    <div class="text-sm text-gray-500">${escapeHtml(customer.email)}</div>
-                    <div class="text-sm text-gray-500">${escapeHtml(customer.phone)}</div>
+                    <strong>${escapeHtml(customer.name)}</strong><br>
+                    <small>${escapeHtml(customer.email)}</small><br>
+                    <small>${escapeHtml(customer.phone)}</small>
                 </li>
             `).join('');
-            
-            resultsContainer.innerHTML = customersHtml;
+            document.getElementById('customerResults').innerHTML = list;
         })
         .catch(error => {
-            console.error('Error:', error);
-            resultsContainer.innerHTML = `
-                <li class="p-4 text-center text-red-500">
-                    Error loading customers. Please try again.
-                </li>`;
+            document.getElementById('customerResults').innerHTML = `<li class="p-2 text-red-500">Error: ${escapeHtml(error.message)}</li>`;
         });
+    }
+
+    function escapeHtml(unsafe) {
+        return unsafe?.toString()
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "<")
+            .replace(/>/g, ">")
+            .replace(/"/g, """)
+            .replace(/'/g, "&#039;");
     }
 
     function selectCustomer(id, name, phone, email) {
@@ -294,21 +262,13 @@
         document.getElementById('customer_phone').value = phone;
         document.getElementById('customer_email').value = email;
 
-        // Make fields readonly and grayed out
         ['customer_name', 'customer_phone', 'customer_email'].forEach(id => {
             const input = document.getElementById(id);
             input.readOnly = true;
-            input.classList.add('bg-gray-100', 'cursor-not-allowed');
+            input.classList.add('bg-gray-100');
         });
 
         closeCustomerModal();
-    }
-
-    function escapeHtml(text) {
-        if (!text) return '';
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
     }
 </script>
 

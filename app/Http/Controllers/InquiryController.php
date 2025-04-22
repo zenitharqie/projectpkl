@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inquiry;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Customer;
+use Illuminate\Support\Facades\Storage;
 
 class InquiryController extends Controller
 {

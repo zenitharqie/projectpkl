@@ -37,10 +37,10 @@
             {{-- Removed Add Inquiry from sidebar as per request --}}
             {{-- <li><a href="{{ url('/user/inquiryform') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Inquiry</a></li> --}}
             <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
-            <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li>
+            {{-- <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li> --}}
             <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Quotations</a></li>
             <li><a href="{{ url('/') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Purchase Orders</a></li>
-            <li><a href="{{ url('/admin/payment') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Payments</a></li>
+            {{-- <li><a href="{{ url('/admin/payment') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Payments</a></li> --}}
         </ul>
     </div>
 
@@ -58,16 +58,19 @@
 
         <div class="bg-white p-6 rounded-lg shadow-md">
             <!-- Filter -->
-            <div class="mb-4 flex space-x-4">
-                <input type="text" id="filterCustomer" placeholder="Filter by Customer Name" class="p-2 border rounded w-1/3">
-                <input type="text" id="filterCompany" placeholder="Filter by Company" class="p-2 border rounded w-1/3">
-                <select id="filterBusinessUnit" class="p-2 border rounded w-1/3">
-                    <option value="">Filter by Business Unit</option>
-                    <option value="Bisnis Unit 1">Bisnis Unit 1 (Penjualan Electrical, Alvalaval)</option>
-                    <option value="Bisnis Unit 2">Bisnis Unit 2 (Jasa Mechanical, Service, Konstruksi)</option>
-                    <option value="Bisnis Unit 3">Bisnis Unit 3 (Olincash)</option>
+            <form method="GET" action="{{ route('admin.listquotation') }}" class="mb-4 flex space-x-4">
+                <input type="text" name="filter_customer" value="{{ request('filter_customer') }}" placeholder="Filter by Customer Name" class="p-2 border rounded w-1/3">
+                <select name="filter_status" class="p-2 border rounded w-1/3">
+                    <option value="">Filter by Status</option>
+                    <option value="N/A" {{ request('filter_status') == 'N/A' ? 'selected' : '' }}>N/A</option>
+                    <option value="VAL" {{ request('filter_status') == 'VAL' ? 'selected' : '' }}>VAL</option>
+                    <option value="LOST" {{ request('filter_status') == 'LOST' ? 'selected' : '' }}>LOST</option>
+                    <option value="WIP" {{ request('filter_status') == 'WIP' ? 'selected' : '' }}>WIP</option>
+                    <option value="AR" {{ request('filter_status') == 'AR' ? 'selected' : '' }}>AR</option>
+                    <option value="CLSD" {{ request('filter_status') == 'CLSD' ? 'selected' : '' }}>CLSD</option>
                 </select>
-            </div>
+                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">Filter</button>
+            </form>
 
             <!-- Notifikasi Sukses -->
             @if(session('success'))
@@ -125,14 +128,20 @@
                     <input type="date" name="due_date" value="{{ $quotation->due_date ?? '' }}" onchange="this.form.submit()" class="border rounded p-1 w-full">
                 </form>
             </td>
-            <td class="p-3"><a href="{{ route('quotations.download', $quotation->id) }}" target="_blank" class="text-blue-500 hover:underline">Download</a></td>
+            <td class="p-3">
+                <a href="{{ route('quotations.download', $quotation->id) }}" target="_blank" class="text-blue-500 hover:underline block mb-1">Download</a>
+                <a href="{{ route('quotations.view', $quotation->id) }}" target="_blank" class="text-green-600 hover:underline block">View</a>
+            </td>
             <td class="p-3">
                 <form action="{{ route('quotations.update-status', $quotation->id) }}" method="POST">
                     @csrf
                     <select name="status" onchange="this.form.submit()" class="border rounded p-1">
-                        <option value="pending" {{ $quotation->status_quotation === 'pending' ? 'selected' : '' }} style="background-color:#fee2e2; color:#b91c1c;">Pending</option>
-                        <option value="process" {{ $quotation->status_quotation === 'process' ? 'selected' : '' }} style="background-color:#fef3c7; color:#78350f;">Process</option>
-                        <option value="completed" {{ $quotation->status_quotation === 'completed' ? 'selected' : '' }} style="background-color:#d1fae5; color:#065f46;">Completed</option>
+                        <option value="N/A" {{ $quotation->status_quotation === 'N/A' ? 'selected' : '' }} style="background-color:#e5e7eb; color:#374151;">N/A</option>
+                        <option value="VAL" {{ $quotation->status_quotation === 'VAL' ? 'selected' : '' }} style="background-color:#dbeafe; color:#1e40af;">VAL</option>
+                        <option value="LOST" {{ $quotation->status_quotation === 'LOST' ? 'selected' : '' }} style="background-color:#fee2e2; color:#b91c1c;">LOST</option>
+                        <option value="WIP" {{ $quotation->status_quotation === 'WIP' ? 'selected' : '' }} style="background-color:#fef3c7; color:#78350f;">WIP</option>
+                        <option value="AR" {{ $quotation->status_quotation === 'AR' ? 'selected' : '' }} style="background-color:#fef9c3; color:#78350f;">AR</option>
+                        <option value="CLSD" {{ $quotation->status_quotation === 'CLSD' ? 'selected' : '' }} style="background-color:#d1fae5; color:#065f46;">CLSD</option>
                     </select>
                 </form>
             </td>

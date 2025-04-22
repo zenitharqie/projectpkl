@@ -48,6 +48,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
 Route::post('/quotations/{quotation}/due-date', [QuotationController::class, 'updateDueDate'])->name('quotations.update-due-date');
 Route::get('/quotations/{quotation}/download', [QuotationController::class, 'download'])->name('quotations.download');
+Route::get('/quotations/{quotation}/view', [QuotationController::class, 'viewDocument'])->name('quotations.view');
 Route::post('/quotations/{quotation}/resend-email', [QuotationController::class, 'resendEmail'])->name('quotations.resend-email');
 Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
 

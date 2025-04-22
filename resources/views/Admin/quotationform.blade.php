@@ -15,8 +15,8 @@
             <ul class="space-y-3 flex-1">
                 <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Dashboard</a></li>
                 <li><a href="{{ url('/user/inquiryform') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Inquiry</a></li>
-                <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
-                <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li>
+            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
+                {{-- <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li> --}}
                 <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Quotations</a></li>
                 <li><a href="{{ url('/') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Purchase Orders</a></li>
                 <li><a href="{{ url('/admin/payment') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Payments</a></li>
@@ -111,6 +111,19 @@
                         <p class="text-gray-700">Tax (11%): <span id="tax">0</span></p>
                         <p class="text-gray-700 font-bold">Total: <span id="total-summary">0</span></p>
                     </div>
+                </div>
+
+                <!-- Status -->
+                <div class="mb-6">
+                    <label for="status_quotation" class="block text-gray-700">Status</label>
+                    <select name="status_quotation" id="status_quotation" class="w-full px-4 py-2 border rounded-lg" required>
+                        <option value="N/A" selected>N/A</option>
+                        <option value="VAL">VAL</option>
+                        <option value="LOST">LOST</option>
+                        <option value="WIP">WIP</option>
+                        <option value="AR">AR</option>
+                        <option value="CLSD">CLSD</option>
+                    </select>
                 </div>
 
                 <!-- Submit Button -->

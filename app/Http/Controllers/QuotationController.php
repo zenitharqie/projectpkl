@@ -49,7 +49,7 @@ class QuotationController extends Controller
                 'inquiry_date' => $inquiry->inquiry_date ?? now()->toDateString(),
                 'due_date' => null,
                 'quotation_file' => $filePath,
-                'status_quotation' => 'pending',
+                'status_quotation' => 'N/A',
                 'email_customer' => $inquiry->customer->email ?? '',
                 'sales' => $inquiry->sales_name ?? '',
                 'quotation_number' => $this->generateQuotationNumber(),
@@ -88,12 +88,22 @@ class QuotationController extends Controller
         return view('admin.quotationdetail', compact('quotation'));
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $quotations = Quotation::with(['customer', 'inquiry', 'items'])
-            ->orderBy('created_at', 'desc')
-            ->get();
-            
+        $query = Quotation::with(['customer', 'inquiry', 'items'])->orderBy('created_at', 'desc');
+
+        if ($request->filled('filter_customer')) {
+            $query->whereHas('customer', function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request->filter_customer . '%');
+            });
+        }
+
+        if ($request->filled('filter_status')) {
+            $query->where('status_quotation', $request->filter_status);
+        }
+
+        $quotations = $query->get();
+
         return view('admin.listquotation', compact('quotations'));
     }
     
@@ -114,7 +124,7 @@ class QuotationController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'status' => 'required|in:pending,process,completed',
+            'status' => 'required|in:N/A,VAL,LOST,WIP,AR,CLSD',
         ]);
 
         $quotation = Quotation::findOrFail($id);
@@ -144,6 +154,23 @@ class QuotationController extends Controller
         }
 
         return Storage::download($quotation->quotation_file);
+    }
+
+    public function viewDocument($id)
+    {
+        $quotation = Quotation::findOrFail($id);
+
+        if (!Storage::exists($quotation->quotation_file)) {
+            abort(404);
+        }
+
+        $filePath = $quotation->quotation_file;
+        $mimeType = Storage::mimeType($filePath);
+        $fileContent = Storage::get($filePath);
+
+        return response($fileContent, 200)
+            ->header('Content-Type', $mimeType)
+            ->header('Content-Disposition', 'inline; filename="' . basename($filePath) . '"');
     }
 
     public function resendEmail($id)
