@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Inquiry;
+use App\Models\Quotation;
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -18,6 +19,13 @@ class DashboardController extends Controller
         $pendingInquiries = Inquiry::where('status', 'pending')->count();
         $processInquiries = Inquiry::where('status', 'process')->count();
         $completedInquiries = Inquiry::where('status', 'completed')->count();
+
+        // Ambil total quotations
+        $totalQuotations = Quotation::count();
+
+        // Ambil jumlah quotations berdasarkan status
+        $processQuotations = Quotation::where('status_quotation', 'process')->count();
+        $completedQuotations = Quotation::where('status_quotation', 'completed')->count();
     
         // Ambil jumlah inquiries berdasarkan waktu
         $todayInquiries = Inquiry::whereDate('created_at', today())->count();
@@ -54,6 +62,9 @@ class DashboardController extends Controller
             'pendingInquiries',
             'processInquiries',
             'completedInquiries',
+            'totalQuotations',
+            'processQuotations',
+            'completedQuotations',
             'todayInquiries',
             'thisMonthInquiries',
             'thisYearInquiries',

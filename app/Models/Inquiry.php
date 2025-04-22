@@ -10,12 +10,25 @@ class Inquiry extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_name',
-        'item_code',
+        'customer_id',
+        'business_unit',
+        'sales_name',
+        'end_user', 
+        'pic_engineering', 
+        'email_engineering',
         'description',
-        'quantity',
-        'due_date',
+        'inquiry_date',
         'status',
         'document'
     ];
+
+    public function customer()
+    {
+        return $this->belongsTo(Customer::class)->withDefault();
+    }
+
+    public function quotations()
+    {
+        return $this->hasMany(Quotation::class);
+    }
 }

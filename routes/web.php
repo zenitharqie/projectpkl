@@ -1,60 +1,90 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\QuotationController;
 
-
-// Halaman Utama
 Route::get('/', function () {
+    if (Auth::check()) {
+        return redirect('/admin/dashboard');
+    }
     return redirect('/admin/login');
 });
 
-// Halaman Login
-Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/admin/login', [AuthController::class, 'login']);
+// Redirect /listquotation to /admin/listquotation to fix 404
+Route::get('/listquotation', function () {
+    return redirect('/admin/listquotation');
+});
 
 
-// Route untuk dashboard admin
+// Authentication Routes (Guest Only)
+Route::middleware('guest')->group(function () {
+    Route::get('/admin/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/admin/login', [AuthController::class, 'login']);
+});
 
-// Dashboard Admin (Hanya bisa diakses setelah login)
+// Authenticated Routes
 Route::middleware(['auth'])->group(function () {
+    // Dashboard
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin.dashboard');
 
-    Route::get('/admin/quotation', function () {
-        return view('admin.quotation');
+    // Inquiry Routes
+    Route::prefix('admin')->group(function () {
+        Route::get('/listinquiry', [InquiryController::class, 'listInquiries'])->name('admin.listinquiry');
+        Route::post('/inquiries/{id}/update-status', [InquiryController::class, 'updateStatus'])->name('inquiries.updateStatus');
+        Route::delete('/inquiries/{id}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
+
+        // Edit and update inquiry
+        Route::get('/inquiries/{id}/edit', [InquiryController::class, 'edit'])->name('inquiries.edit');
+        Route::put('/inquiries/{id}', [InquiryController::class, 'update'])->name('inquiries.update');
     });
 
-    Route::get('/admin/listinquiry', function () {
-        return view('admin.listinquiry');
+    // Quotation Routes
+    Route::prefix('admin')->group(function () {
+        Route::post('/quotations/{quotation}/status', [QuotationController::class, 'updateStatus'])->name('quotations.update-status');
+Route::post('/quotations/{quotation}/due-date', [QuotationController::class, 'updateDueDate'])->name('quotations.update-due-date');
+Route::get('/quotations/{quotation}/download', [QuotationController::class, 'download'])->name('quotations.download');
+Route::post('/quotations/{quotation}/resend-email', [QuotationController::class, 'resendEmail'])->name('quotations.resend-email');
+Route::post('/quotations', [QuotationController::class, 'store'])->name('quotations.store');
+
+        // Add GET route for listing quotations
+        Route::get('/listquotation', [QuotationController::class, 'index'])->name('admin.listquotation');
+
+        // Add DELETE route for deleting quotations
+        Route::delete('/quotations/{quotation}', [QuotationController::class, 'destroy'])->name('quotations.destroy');
+
+        // Add PUT route for updating quotations
+        Route::put('/quotations/{quotation}', [QuotationController::class, 'update'])->name('quotations.update');
     });
 
+    // Payment Page
     Route::get('/admin/payment', function () {
         return view('admin.payment');
-    });
+    })->name('admin.payment');
 
+    // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 });
 
-// Halaman Inquiry User (Tidak butuh autentikasi)
-Route::get('/user/inquiryform', function () {
-    return view('user.inquiryform');
+// Public Inquiry Form Routes (User Side)
+Route::controller(InquiryController::class)->group(function () {
+    Route::get('/user/inquiryform', 'index')->name('inquiries.form');
+    Route::post('/user/inquiryform', 'store')->name('inquiries.store');
+    Route::get('/inquiries/search-customers', 'searchCustomers')->name('inquiries.search-customers');
 });
 
-// Form Inquiry (Menampilkan form dan menyimpan data)
-Route::get('/user/inquiryform', [InquiryController::class, 'index'])->name('inquiries.index');
-Route::post('/user/inquiryform', [InquiryController::class, 'store'])->name('inquiries.store');
+// Test Email Route (Only for Local Development)
+if (app()->environment('local')) {
+    Route::get('/test-email', function () {
+        $quotation = new \App\Models\Quotation(); 
+        $quotation->customer_name = 'John Doe';
+        $quotation->email = 'your_email@gmail.com';
 
-// Route untuk menampilkan list inquiry di admin dashboard
-Route::get('/admin/listinquiry', [InquiryController::class, 'listInquiries'])->name('admin.listinquiry');
-
-// Route untuk mengupdate status inquiry
-Route::post('/inquiries/{id}/update-status', [InquiryController::class, 'updateStatus'])->name('inquiries.updateStatus');
-
-Route::get('/inquiry/{id}', function ($id) {
-    $inquiry = Inquiry::find($id);
-    return response()->json($inquiry);
-});
-
-Route::delete('/inquiries/{id}', [InquiryController::class, 'destroy'])->name('inquiries.destroy');
+        Mail::to($quotation->email)->send(new \App\Mail\QuotationMail($quotation));
+        return 'Test email sent!';
+    })->middleware('auth');
+}

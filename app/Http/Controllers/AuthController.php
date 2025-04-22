@@ -41,8 +41,12 @@ class AuthController extends Controller
     // Logout
     public function logout(Request $request)
     {
-        // Hapus session
-        Session::forget('isLoggedIn');
+        Auth::logout(); // ini WAJIB
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+    
         return redirect('/admin/login');
     }
+    
+
 }
