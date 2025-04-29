@@ -4,36 +4,47 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{{ isset($inquiry) ? 'Edit Inquiry' : 'Create Inquiry' }}</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <meta name="csrf-token" content="{{ csrf_token() }}" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* Tambahkan style untuk memastikan modal muncul di atas semua elemen */
+        .modal {
+            z-index: 1000;
+        }
+        .modal-content {
+            max-height: 80vh;
+        }
+    </style>
 </head>
-<body class="bg-gray-100">
-
-<div class="flex h-screen">
-   <!-- Sidebar -->
-   <div class="w-64 h-full bg-white shadow-lg p-5 flex flex-col overflow-y-auto">
+<body class="bg-gray-100 font-sans flex">
+    <!-- Sidebar -->
+    <div class="w-64 h-screen bg-white shadow-lg p-5 flex flex-col fixed">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h2>
         <ul class="space-y-3 flex-1">
-            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Dashboard</a></li>
-            {{-- Removed Add Inquiry from sidebar as per request --}}
-            {{-- <li><a href="{{ url('/user/inquiryform') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Inquiry</a></li> --}}
-            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
-            <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li>
-            <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Quotations</a></li>
-            <li><a href="{{ url('/') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Purchase Orders</a></li>
-            <li><a href="{{ url('/admin/payment') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Payments</a></li>
+            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-tachometer-alt mr-3 text-blue-500"></i>Dashboard</a></li>
+            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-list mr-3 text-blue-500"></i>List Inquiry</a></li>
+            <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Quotations</a></li>
+            <li><a href="{{ url('/purchaseorder') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Purchase Order Form</a></li>
+            <li><a href="{{ url('/admin/purchaseorderlist') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-clipboard-list mr-3 text-blue-500"></i>Purchase Order List</a></li>
         </ul>
+        <div class="pt-4 border-t border-gray-200">
+            <a href="#" class="flex items-center p-3 text-red-500 hover:bg-gray-200 rounded-md transition duration-200">
+                <i class="fas fa-sign-out-alt mr-3"></i>Logout
+            </a>
+        </div>
     </div>
 
-    <!-- Main Content -->
-    <main class="flex-1 flex flex-col">
-        <!-- App Bar -->
-        <header class="bg-white shadow-md p-4">
-            <h1 class="text-2xl font-bold text-gray-700">{{ isset($inquiry) ? 'Edit Inquiry' : 'Create Inquiry' }}</h1>
-        </header>
+<!-- Main Content -->
+<main class="flex-1 p-6 pl-72 flex flex-col overflow-y-auto">
+    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+        <div class="bg-blue-600 text-white p-4">
+            <h1 class="text-2xl font-bold">{{ isset($inquiry) ? 'Edit Inquiry' : 'Create Inquiry' }}</h1>
+        </div>
 
         <!-- Form Section -->
-        <section class="p-6 overflow-y-auto">
+        <div class="p-6">
             @if (session('success'))
                 <div class="bg-green-500 text-white p-4 rounded mb-4">
                     {{ session('success') }}
@@ -50,12 +61,13 @@
                 </div>
             @endif
 
-            <form action="{{ isset($inquiry) ? route('inquiries.update', $inquiry->id) : route('inquiries.store') }}" method="POST" enctype="multipart/form-data" class="bg-white p-6 rounded-lg shadow-md space-y-6">
+            <form action="{{ isset($inquiry) ? route('inquiries.update', $inquiry->id) : route('inquiries.store') }}" method="POST" enctype="multipart/form-data" class="space-y-6">
                 @csrf
                 @if(isset($inquiry))
                     @method('PUT')
                 @endif
                 <input type="hidden" name="customer_id" id="customer_id" value="{{ old('customer_id', $inquiry->customer_id ?? '') }}">
+
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
@@ -186,19 +198,23 @@
 </div>
 
 <!-- Customer Modal -->
-<div id="customerModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center">
-    <div class="bg-white w-full max-w-xl p-6 rounded-lg shadow-lg relative">
-        <h2 class="text-lg font-semibold mb-2">Search Customer</h2>
-        <input type="text" id="searchCustomerInput" placeholder="Type name or email..."
-               class="w-full border px-4 py-2 rounded mb-4" onkeyup="searchCustomer()">
-        <ul id="customerResults" class="max-h-64 overflow-y-auto space-y-2"></ul>
-        <button onclick="closeCustomerModal()" class="absolute top-2 right-2 text-gray-500 hover:text-gray-800">✖</button>
+<div id="customerModal" class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4 modal">
+    <div class="bg-white w-full max-w-xl rounded-lg shadow-lg modal-content">
+        <div class="p-6 relative">
+            <h2 class="text-lg font-semibold mb-2">Search Customer</h2>
+            <input type="text" id="searchCustomerInput" placeholder="Type name or email..."
+                   class="w-full border px-4 py-2 rounded mb-4" onkeyup="searchCustomer()">
+            <ul id="customerResults" class="max-h-64 overflow-y-auto space-y-2"></ul>
+            <button onclick="closeCustomerModal()" class="absolute top-4 right-4 text-gray-500 hover:text-gray-800 text-xl">✖</button>
+        </div>
     </div>
 </div>
 
 <script>
     function openCustomerModal() {
-        document.getElementById("customerModal").classList.remove("hidden");
+        const modal = document.getElementById("customerModal");
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
         const searchInput = document.getElementById("searchCustomerInput");
         searchInput.value = '';
         searchInput.focus();
@@ -206,17 +222,21 @@
     }
 
     function closeCustomerModal() {
-        document.getElementById("customerModal").classList.add("hidden");
+        const modal = document.getElementById("customerModal");
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
     }
 
     function searchCustomer() {
         const term = document.getElementById('searchCustomerInput').value;
+        const resultsContainer = document.getElementById('customerResults');
+        
         if (term.length < 2) {
-            document.getElementById('customerResults').innerHTML = '<li class="p-2 text-gray-500">Type at least 2 characters</li>';
+            resultsContainer.innerHTML = '<li class="p-2 text-gray-500">Type at least 2 characters</li>';
             return;
         }
 
-        document.getElementById('customerResults').innerHTML = '<li class="p-2 text-gray-500">Searching...</li>';
+        resultsContainer.innerHTML = '<li class="p-2 text-gray-500">Searching...</li>';
 
         fetch(`{{ route('inquiries.search-customers') }}?term=${encodeURIComponent(term)}`, {
             headers: {
@@ -225,34 +245,41 @@
                 'Content-Type': 'application/json'
             }
         })
-        .then(res => res.json())
+        .then(res => {
+            if (!res.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return res.json();
+        })
         .then(data => {
             if (!data || data.length === 0) {
-                document.getElementById('customerResults').innerHTML = '<li class="p-2 text-gray-500">No customers found</li>';
+                resultsContainer.innerHTML = '<li class="p-2 text-gray-500">No customers found</li>';
                 return;
             }
 
             const list = data.map(customer => `
                 <li class="border p-3 rounded hover:bg-gray-100 cursor-pointer"
-                    onclick="selectCustomer(${customer.id}, '${escapeHtml(customer.name)}', '${escapeHtml(customer.phone)}', '${escapeHtml(customer.email)}')">
+                    onclick="selectCustomer(${customer.id}, '${escapeHtml(customer.name)}', '${escapeHtml(customer.phone || '')}', '${escapeHtml(customer.email || '')}')">
                     <strong>${escapeHtml(customer.name)}</strong><br>
-                    <small>${escapeHtml(customer.email)}</small><br>
-                    <small>${escapeHtml(customer.phone)}</small>
+                    <small>${customer.email ? escapeHtml(customer.email) : 'No email'}</small><br>
+                    <small>${customer.phone ? escapeHtml(customer.phone) : 'No phone'}</small>
                 </li>
             `).join('');
-            document.getElementById('customerResults').innerHTML = list;
+            resultsContainer.innerHTML = list;
         })
         .catch(error => {
-            document.getElementById('customerResults').innerHTML = `<li class="p-2 text-red-500">Error: ${escapeHtml(error.message)}</li>`;
+            console.error('Error:', error);
+            resultsContainer.innerHTML = `<li class="p-2 text-red-500">Error: ${escapeHtml(error.message)}</li>`;
         });
     }
 
     function escapeHtml(unsafe) {
-        return unsafe?.toString()
+        if (!unsafe) return '';
+        return unsafe.toString()
             .replace(/&/g, "&amp;")
-            .replace(/</g, "<")
-            .replace(/>/g, ">")
-            .replace(/"/g, """)
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
             .replace(/'/g, "&#039;");
     }
 
@@ -270,6 +297,13 @@
 
         closeCustomerModal();
     }
+
+    // Close modal when clicking outside
+    document.getElementById('customerModal').addEventListener('click', function(e) {
+        if (e.target === this) {
+            closeCustomerModal();
+        }
+    });
 </script>
 
 </body>

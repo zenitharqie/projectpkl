@@ -15,17 +15,22 @@ class DashboardController extends Controller
         // Ambil total inquiries
         $totalInquiries = Inquiry::count();
     
-        // Ambil jumlah inquiries berdasarkan status
-        $pendingInquiries = Inquiry::where('status', 'pending')->count();
-        $processInquiries = Inquiry::where('status', 'process')->count();
-        $completedInquiries = Inquiry::where('status', 'completed')->count();
+        // Removed inquiries and quotations status counts as per user request
+        // So these variables are not passed to view anymore
+        // $pendingInquiries = Inquiry::where('status', 'pending')->count();
+        // $processInquiries = Inquiry::where('status', 'process')->count();
+        // $completedInquiries = Inquiry::where('status', 'completed')->count();
 
-        // Ambil total quotations
         $totalQuotations = Quotation::count();
 
-        // Ambil jumlah quotations berdasarkan status
-        $processQuotations = Quotation::where('status_quotation', 'process')->count();
-        $completedQuotations = Quotation::where('status_quotation', 'completed')->count();
+        // $processQuotations = Quotation::where('status_quotation', 'process')->count();
+        // $completedQuotations = Quotation::where('status_quotation', 'completed')->count();
+
+        // Placeholder for POs count (logic empty)
+        $totalPOs = 0;
+
+        // Placeholder for Expired Quotations count (logic empty)
+        $expiredQuotations = 0;
     
         // Ambil jumlah inquiries berdasarkan waktu
         $todayInquiries = Inquiry::whereDate('created_at', today())->count();
@@ -55,23 +60,29 @@ class DashboardController extends Controller
             ->orderBy('year', 'asc')
             ->take(5) // Ambil 5 tahun terakhir
             ->get();
-    
+
+        // Ambil distinct business units dari inquiries yang sudah menjadi quotations
+        $businessUnits = Inquiry::whereIn('id', function ($query) {
+                $query->select('inquiry_id')->from('quotations');
+            })
+            ->select('business_unit')
+            ->distinct()
+            ->pluck('business_unit');
+
         // Kirim data ke view
         return view('admin.dashboard', compact(
             'totalInquiries',
-            'pendingInquiries',
-            'processInquiries',
-            'completedInquiries',
             'totalQuotations',
-            'processQuotations',
-            'completedQuotations',
+            'totalPOs',
+            'expiredQuotations',
             'todayInquiries',
             'thisMonthInquiries',
             'thisYearInquiries',
             'recentInquiries',
             'dailyInquiries',
             'monthlyInquiries',
-            'yearlyInquiries'
+            'yearlyInquiries',
+            'businessUnits'
         ));
     }
 }

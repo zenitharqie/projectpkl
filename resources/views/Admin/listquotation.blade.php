@@ -23,28 +23,39 @@
     </div>
 </div>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Quotation List</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .toggle-fields {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
 <body class="bg-gray-100 flex h-screen">
     <!-- Sidebar -->
-    <div class="w-64 h-full bg-white shadow-lg p-5 flex flex-col overflow-y-auto">
+    <div class="w-64 h-screen bg-white shadow-lg p-5 flex flex-col fixed">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h2>
         <ul class="space-y-3 flex-1">
-            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Dashboard</a></li>
-            {{-- Removed Add Inquiry from sidebar as per request --}}
-            {{-- <li><a href="{{ url('/user/inquiryform') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Inquiry</a></li> --}}
-            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
-            {{-- <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li> --}}
-            <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Quotations</a></li>
-            <li><a href="{{ url('/') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Purchase Orders</a></li>
-            {{-- <li><a href="{{ url('/admin/payment') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Payments</a></li> --}}
+            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-tachometer-alt mr-3 text-blue-500"></i>Dashboard</a></li>
+            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-list mr-3 text-blue-500"></i>List Inquiry</a></li>
+            <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Quotations</a></li>
+            <li><a href="{{ url('/purchaseorder') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Purchase Order Form</a></li>
+            <li><a href="{{ url('/admin/purchaseorderlist') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-clipboard-list mr-3 text-blue-500"></i>Purchase Order List</a></li>
         </ul>
+        <div class="pt-4 border-t border-gray-200">
+            <a href="#" class="flex items-center p-3 text-red-500 hover:bg-gray-200 rounded-md transition duration-200">
+                <i class="fas fa-sign-out-alt mr-3"></i>Logout
+            </a>
+        </div>
     </div>
 
-    <div class="flex-1 p-6 overflow-y-auto">
+    <!-- Main Content -->
+    <div class="flex-1 ml-64 p-6 overflow-y-auto"> <!-- Added ml-64 (same as sidebar width) -->
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">List Quotation</h1>
             <div class="flex items-center space-x-4">

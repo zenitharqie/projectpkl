@@ -1,30 +1,39 @@
 <!DOCTYPE html>
-<html lang="en" class="h-full">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Dashboard</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <style>
+        .toggle-fields {
+            transition: all 0.3s ease;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 flex h-screen">
+<body class="bg-gray-100 font-sans flex">
     <!-- Sidebar -->
-    <div class="w-64 h-full bg-white shadow-lg p-5 flex flex-col overflow-y-auto">
+    <div class="w-64 h-screen bg-white shadow-lg p-5 flex flex-col fixed">
         <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h2>
         <ul class="space-y-3 flex-1">
-            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Dashboard</a></li>
-            {{-- Removed Add Inquiry from sidebar as per request --}}
-            {{-- <li><a href="{{ url('/user/inquiryform') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Inquiry</a></li> --}}
-            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">List Inquiry</a></li>
-            <li><a href="{{ url('/admin/quotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Add Quotations</a></li>
-            <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Quotations</a></li>
-            <li><a href="{{ url('/') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Purchase Orders</a></li>
-            <li><a href="{{ url('/admin/payment') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md">Payments</a></li>
+            <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-tachometer-alt mr-3 text-blue-500"></i>Dashboard</a></li>
+            <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-list mr-3 text-blue-500"></i>List Inquiry</a></li>
+            <li><a href="{{ url('/admin/listquotation') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Quotations</a></li>
+            <li><a href="{{ url('/purchaseorder') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Purchase Order Form</a></li>
+            <li><a href="{{ url('/admin/purchaseorderlist') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-clipboard-list mr-3 text-blue-500"></i>Purchase Order List</a></li>
         </ul>
-    </div> 
+        <div class="pt-4 border-t border-gray-200">
+            <a href="#" class="flex items-center p-3 text-red-500 hover:bg-gray-200 rounded-md transition duration-200">
+                <i class="fas fa-sign-out-alt mr-3"></i>Logout
+            </a>
+        </div>
+    </div>
 
     <!-- Main Content -->
-    <main class="flex-1 p-6 flex flex-col overflow-y-auto">
+    <main class="flex-1 p-6 pl-72 flex flex-col overflow-y-auto">
         <div class="flex justify-between items-center mb-6">
             <h1 class="text-3xl font-bold text-gray-800">Dashboard Overview</h1>
             <div class="flex items-center space-x-4">
@@ -37,34 +46,22 @@
         </div>
 
         <!-- Cards Overview -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-gray-500">
                 <h2 class="text-lg font-semibold">Total Inquiry</h2>
                 <p class="text-3xl font-bold">{{ $totalInquiries }}</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-red-500">
-                <h2 class="text-lg font-semibold">Pending Inquiry</h2>
-                <p class="text-3xl font-bold">{{ $pendingInquiries }}</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-500">
-                <h2 class="text-lg font-semibold">Completed Inquiry</h2>
-                <p class="text-3xl font-bold">{{ $completedInquiries }}</p>
-            </div>
-            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-yellow-500">
-                <h2 class="text-lg font-semibold">Process Inquiry</h2>
-                <p class="text-3xl font-bold">{{ $processInquiries }}</p>
             </div>
             <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-blue-500">
                 <h2 class="text-lg font-semibold">Total Quotations</h2>
                 <p class="text-3xl font-bold">{{ $totalQuotations }}</p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-indigo-500">
-                <h2 class="text-lg font-semibold">Process Quotations</h2>
-                <p class="text-3xl font-bold">{{ $processQuotations }}</p>
+            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-purple-500">
+                <h2 class="text-lg font-semibold">POs</h2>
+                <p class="text-3xl font-bold">{{ $totalPOs }}</p>
             </div>
-            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-green-600">
-                <h2 class="text-lg font-semibold">Completed Quotations</h2>
-                <p class="text-3xl font-bold">{{ $completedQuotations }}</p>
+            <div class="bg-white p-6 rounded-lg shadow-md border-l-4 border-pink-500">
+                <h2 class="text-lg font-semibold">Expired Quotations</h2>
+                <p class="text-3xl font-bold">{{ $expiredQuotations }}</p>
             </div>
         </div>
 
@@ -82,6 +79,32 @@
                 <h2 class="text-lg font-semibold">Year Inquiry</h2>
                 <p class="text-3xl font-bold">{{ $thisYearInquiries }}</p>
             </div>
+        </div>
+
+        <!-- Conversion Rate List (UI only) -->
+        <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Conversion Rate List</h2>
+            <p class="text-gray-500">Conversion rate data will be displayed here (logic not implemented).</p>
+        </div>
+
+        <!-- Company Growth Selling (UI only) -->
+        <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Company Growth Selling</h2>
+            <p class="text-gray-500">Company growth chart based on inquiry, quotation, and PO will be displayed here (logic not implemented).</p>
+        </div>
+
+        <!-- Business Unit List -->
+        <div class="bg-white p-6 rounded-lg shadow-md mt-8">
+            <h2 class="text-lg font-semibold text-gray-700 mb-4">Business Units</h2>
+            @if($businessUnits->isEmpty())
+                <p class="text-gray-500">No business units found.</p>
+            @else
+                <ul class="list-disc list-inside text-gray-700">
+                    @foreach($businessUnits as $unit)
+                        <li>{{ $unit }}</li>
+                    @endforeach
+                </ul>
+            @endif
         </div>
 
         <!-- Grafik Pertumbuhan Inquiry -->

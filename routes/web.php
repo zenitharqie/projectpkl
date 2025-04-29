@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\InquiryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\QuotationController;
+use App\Http\Controllers\PurchaseOrderController;
 
 Route::get('/', function () {
     if (Auth::check()) {
@@ -69,6 +70,16 @@ Route::post('/quotations', [QuotationController::class, 'store'])->name('quotati
 
     // Logout
     Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+
+    // Purchase Order Routes
+    Route::get('/purchaseorder', [PurchaseOrderController::class, 'index'])->name('purchaseorder.index');
+    Route::get('/admin/purchaseorderlist', [PurchaseOrderController::class, 'list'])->name('purchaseorder.list');
+    Route::post('/purchaseorder/search', [PurchaseOrderController::class, 'searchQuotation'])->name('purchaseorder.search');
+    Route::post('/purchaseorder', [PurchaseOrderController::class, 'store'])->name('purchaseorder.store');
+
+    // Purchase Order delete and status update routes
+    Route::delete('/admin/purchaseorder/{id}', [PurchaseOrderController::class, 'destroy'])->name('purchaseorder.destroy');
+    Route::post('/admin/purchaseorder/{id}/status', [PurchaseOrderController::class, 'updateStatus'])->name('purchaseorder.updateStatus');
 });
 
 // Public Inquiry Form Routes (User Side)
