@@ -4,13 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Purchase Order List</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 font-sans flex">
     <!-- Sidebar -->
     <div class="w-64 h-screen bg-white shadow-lg p-5 flex flex-col fixed">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">LNS Indonesia</h2>
         <ul class="space-y-3 flex-1">
             <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-tachometer-alt mr-3 text-blue-500"></i>Dashboard</a></li>
             <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-list mr-3 text-blue-500"></i>List Inquiry</a></li>
@@ -18,17 +19,14 @@
             <li><a href="{{ url('/purchaseorder') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Purchase Order Form</a></li>
             <li><a href="{{ url('/admin/purchaseorderlist') }}" class="flex items-center p-3 bg-blue-100 rounded-md transition duration-200 font-medium"><i class="fas fa-clipboard-list mr-3 text-blue-500"></i>Purchase Order List</a></li>
         </ul>
-        <div class="pt-4 border-t border-gray-200">
-            <a href="#" class="flex items-center p-3 text-red-500 hover:bg-gray-200 rounded-md transition duration-200">
-                <i class="fas fa-sign-out-alt mr-3"></i>Logout
-            </a>
-        </div>
+        
     </div>
 
     <!-- Main Content -->
     <div class="flex-1 ml-64 p-8">
         <div class="max-w-full mx-auto bg-white rounded-lg shadow-md p-8">
             <h1 class="text-2xl font-bold text-gray-800 mb-6">Purchase Order List</h1>
+            
 
             <form method="GET" action="{{ route('purchaseorder.list') }}" class="mb-6">
                 <label for="poid" class="block text-sm font-medium text-gray-700 mb-1">Filter by PO ID</label>

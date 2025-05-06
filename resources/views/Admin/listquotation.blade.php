@@ -1,5 +1,7 @@
 <!DOCTYPE html>
-<html lang="en"><!-- Modal for Quotation Details -->
+<html lang="en">
+    
+<!-- Modal for Quotation Details -->
 <div id="detailModal" class="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 hidden">
     <div class="bg-white p-5 rounded-lg shadow-lg w-1/3">
         <h2 class="text-xl font-semibold mb-3">Quotation Details</h2>
@@ -26,6 +28,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Quotation List</title>
+    <link rel="icon" href="{{ asset('favicon.ico') }}" type="image/x-icon">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -39,7 +42,7 @@
 <body class="bg-gray-100 flex h-screen">
     <!-- Sidebar -->
     <div class="w-64 h-screen bg-white shadow-lg p-5 flex flex-col fixed">
-        <h2 class="text-2xl font-bold text-gray-800 mb-6">Admin Panel</h2>
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">LNS Indonesia</h2>
         <ul class="space-y-3 flex-1">
             <li><a href="{{ route('admin.dashboard') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-tachometer-alt mr-3 text-blue-500"></i>Dashboard</a></li>
             <li><a href="{{ url('/admin/listinquiry') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-list mr-3 text-blue-500"></i>List Inquiry</a></li>
@@ -47,11 +50,7 @@
             <li><a href="{{ url('/purchaseorder') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-file-alt mr-3 text-blue-500"></i>Purchase Order Form</a></li>
             <li><a href="{{ url('/admin/purchaseorderlist') }}" class="flex items-center p-3 hover:bg-gray-200 rounded-md transition duration-200"><i class="fas fa-clipboard-list mr-3 text-blue-500"></i>Purchase Order List</a></li>
         </ul>
-        <div class="pt-4 border-t border-gray-200">
-            <a href="#" class="flex items-center p-3 text-red-500 hover:bg-gray-200 rounded-md transition duration-200">
-                <i class="fas fa-sign-out-alt mr-3"></i>Logout
-            </a>
-        </div>
+        
     </div>
 
     <!-- Main Content -->

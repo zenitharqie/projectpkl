@@ -80,33 +80,11 @@ class InquiryController extends Controller
                 'document' => $documentPath,
             ]);
 
-            // Removed automatic quotation creation on inquiry document upload to prevent duplicate records
-            // if ($documentPath) {
-            //     \Log::info('Creating quotation record for inquiry document upload', ['documentPath' => $documentPath, 'inquiry_id' => $inquiry->id]);
-            //     try {
-            //         $quotation = \App\Models\Quotation::create([
-            //             'inquiry_id' => $inquiry->id,
-            //             'customer_id' => $customerId,
-            //             'inquiry_date' => $request->inquiry_date,
-            //             'due_date' => null,
-            //             'quotation_file' => $documentPath,
-            //             'status_quotation' => 'pending',
-            //             'email_customer' => $request->customer_email ?? '',
-            //             'sales' => $request->sales_name ?? '',
-            //             'quotation_number' => 'AUTO-' . $inquiry->id . '-' . time(),
-            //             'email_sent_at' => null,
-            //         ]);
-            //         \Log::info('Quotation record created successfully', ['quotation_id' => $quotation->id]);
-            //     } catch (\Exception $e) {
-            //         \Log::error('Failed to create quotation record from inquiry document upload: ' . $e->getMessage());
-            //     }
-            // }
-
             \DB::commit();
             \Log::info('Inquiry created successfully', ['id' => $inquiry->id]);
 
             return redirect()
-                ->route('inquiries.index')
+                ->route('admin.inquiries')
                 ->with('success', 'Inquiry submitted successfully!');
 
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -308,6 +286,7 @@ class InquiryController extends Controller
                 }
                 $documentPath = $request->file('document')->store('inquiry_documents', 'public');
             }
+            
 
             // Update inquiry
             $inquiry->update([
